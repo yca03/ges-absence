@@ -1,0 +1,117 @@
+{% set orgonization = company.organization %}
+
+<header class="app-header app-header-dark">
+    <!-- .top-bar -->
+    <div class="top-bar">
+        <!-- .top-bar-brand -->
+        <div class="top-bar-brand">
+            <!-- toggle aside menu -->
+            <button class="hamburger hamburger-squeeze mr-2" type="button" data-toggle="aside-menu"
+                    aria-label="toggle aside menu">
+				<span class="hamburger-box">
+					<span class="hamburger-inner"></span>
+				</span>
+            </button>
+            <div class="mt-2" >
+                <p style="font-size: 15px">{{ orgonization ? orgonization.name : '' }}</p>
+            </div>
+            <!-- /toggle aside menu -->
+        </div>
+        <!-- /.top-bar-brand -->
+        <div class="top-bar-list">
+            <!-- .top-bar-item -->
+            <div class="top-bar-item px-2 d-md-none d-lg-none d-xl-none">
+                <!-- toggle menu -->
+                <button class="hamburger hamburger-squeeze" type="button" data-toggle="aside" aria-label="toggle menu">
+					<span class="hamburger-box">
+						<span class="hamburger-inner"></span>
+					</span>
+                </button>
+                <!-- /toggle menu -->
+            </div>
+
+            {% if is_granted('ROLE_CONSULTER_ETAT') %}
+{#            menu du consultant#}
+            <div class="top-bar-item top-bar-item-right px-0 d-none d-sm-flex">
+                <ul class="header-nav nav">
+                    <li class="nav-item dropdown header-nav-dropdown">
+                        <a class="nav-link" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="oi oi-grid-three-up"></span>
+                        </a>
+                        <!-- .dropdown-menu -->
+                        <div class="dropdown-menu dropdown-menu-rich dropdown-menu-right" style="">
+                            <div class="dropdown-arrow"></div>
+                            <!-- .dropdown-sheets -->
+                            <div
+                                    class="dropdown-sheets">
+                                <!-- .dropdown-sheet-item -->
+                                <div class="dropdown-sheet-item">
+                                    <a href="{{ path('cash_home') }}" class="tile-wrapper">
+                                                            <span class="tile tile-lg bg-teal">
+                                                                <i class="oi oi-box"></i>
+                                                            </span>
+                                        <span class="tile-peek">Caisse</span>
+                                    </a>
+                                </div>
+
+                                <div class="dropdown-sheet-item">
+                                    <a href="" class="tile-wrapper">
+                                                            <span class="tile tile-lg bg-warning">
+                                                                <i class="oi oi-bullhorn"></i>
+                                                            </span>
+                                        <span class="tile-peek">Budget</span>
+                                    </a>
+                                </div>
+
+                            </div>
+                            <!-- .dropdown-sheets -->
+                        </div>
+                        <!-- .dropdown-menu -->
+                    </li>
+
+
+                    <!-- /.nav-item -->
+                    <!-- .nav-item -->
+                </ul>
+
+                {% endif %}
+            <!-- /.top-bar-item -->
+            <div class="top-bar-item top-bar-item-right px-0 d-none d-sm-flex">
+                <!-- .btn-account -->
+                <div class="dropdown d-none d-md-flex">
+                    <button class="btn-account" type="button" data-toggle="dropdown" aria-haspopup="true"
+                            aria-expanded="false">
+						<span class="user-avatar user-avatar-md">
+							<img src="https://ui-avatars.com/api/?name={{ app.user.firstName }}+{{ app.user.lastName }}"
+                                 alt="">
+						</span>
+                        <span class="account-summary pr-lg-4 d-none d-lg-block">
+							<span class="account-name">{{ app.user.firstName }}
+                                {{ app.user.lastName }}</span>
+							<span class="account-description">{{ app.user.email }}</span>
+						</span>
+                    </button>
+                    <!-- .dropdown-menu -->
+                    <div class="dropdown-menu">
+                        <div class="dropdown-arrow d-lg-none" x-arrow=""></div>
+                        <div class="dropdown-arrow ml-3 d-none d-lg-block"></div>
+                        {#                        <a class="dropdown-item" href="{{ path('account_profile') }}"> #}
+                        {#                            <span class="dropdown-icon oi oi-person"></span> #}
+                        {#                            Profile #}
+                        {#                        </a> #}
+                        <a class="dropdown-item" href="{{ path('app_logout') }}">
+                            <span class="dropdown-icon oi oi-account-logout"></span>
+                            Déconnexion
+                        </a>
+                    </div>
+                    <!-- /.dropdown-menu -->
+                </div>
+                <!-- /.btn-account -->
+            </div>
+            <!-- /.top-bar-item -->
+        </div>
+        <!-- /.top-bar-list -->
+    </div>
+    <!-- /.top-bar -->
+</header>
+<!-- /.app-header -->
