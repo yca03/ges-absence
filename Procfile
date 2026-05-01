@@ -1,1 +1,1 @@
-web: composer install --no-dev --optimize-autoloader && php bin/console cache:clear --env=prod --no-warmup && php bin/console cache:warmup --env=prod && php -S 0.0.0.0:$PORT -t public/
+web: composer install --no-dev --optimize-autoloader && rm -rf var/cache/prod && php bin/console cache:clear --env=prod --no-warmup && php bin/console cache:warmup --env=prod && php -S 0.0.0.0:$PORT -t public/
