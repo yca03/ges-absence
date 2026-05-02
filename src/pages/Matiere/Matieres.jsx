@@ -1,17 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useCrud } from '../../services/useCrud'
-import { matiereService } from '../../services/api'
+import { matiereService, filiereService } from '../../services/api'
 import Toast from '../../components/Toast'
 import ConfirmDialog from '../../components/ConfirmDialog'
 
 const EMPTY = {
   nom: '',
   coefficient: '',
-  volumeHoraire: ''
+  volumeHoraire: '',
+  filieres: []
 }
 
 export default function Matieres() {
   const { items, loading, create, update, remove } = useCrud(matiereService)
+  const [filieres, setFilieres] = useState([])
 
   const [modal, setModal] = useState(false)
   const [form, setForm] = useState(EMPTY)
@@ -19,6 +21,13 @@ export default function Matieres() {
   const [toast, setToast] = useState(null)
   const [confirm, setConfirm] = useState(null)
   const [search, setSearch] = useState('')
+
+  // Charger les filières
+  useEffect(() => {
+    filiereService.getAll()
+      .then(res => setFilieres(res.data?.member || []))
+      .catch(() => setFilieres([]))
+  }, [])
 
   const openCreate = () => {
     setForm(EMPTY)
@@ -30,10 +39,24 @@ export default function Matieres() {
     setForm({
       nom: m.nom || '',
       coefficient: m.coefficient || '',
-      volumeHoraire: m.volumeHoraire || ''
+      volumeHoraire: m.volumeHoraire || '',
+      filieres: m.filieres || []
     })
     setEditing(m)
     setModal(true)
+  }
+
+  // Toggle sélection d'une filière (IRI string)
+  const toggleFiliere = (iri) => {
+    setForm(prev => {
+      const already = prev.filieres.includes(iri)
+      return {
+        ...prev,
+        filieres: already
+          ? prev.filieres.filter(f => f !== iri)
+          : [...prev.filieres, iri]
+      }
+    })
   }
 
   const handleSubmit = async () => {
@@ -41,7 +64,8 @@ export default function Matieres() {
       const payload = {
         nom: form.nom,
         coefficient: form.coefficient,
-        volumeHoraire: form.volumeHoraire
+        volumeHoraire: form.volumeHoraire,
+        filieres: form.filieres  // tableau d'IRI ex: ["/api/filieres/1"]
       }
 
       if (editing) await update(editing.id, payload)
@@ -68,6 +92,13 @@ export default function Matieres() {
     setConfirm(null)
   }
 
+  // Résoudre le nom d'une filière depuis son IRI
+  const getFiliereName = (iri) => {
+    const id = iri?.toString().split('/').pop()
+    const found = filieres.find(f => f.id?.toString() === id)
+    return found?.nom || found?.libelle || iri
+  }
+
   const filtered = items.filter(m =>
     (m.nom || '').toLowerCase().includes(search.toLowerCase())
   )
@@ -91,7 +122,6 @@ export default function Matieres() {
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
-
             <input
               className="search-input"
               placeholder="Rechercher une matière..."
@@ -99,7 +129,6 @@ export default function Matieres() {
               onChange={e => setSearch(e.target.value)}
             />
           </div>
-
           <button className="btn btn-primary" onClick={openCreate}>
             Nouvelle matière
           </button>
@@ -116,16 +145,16 @@ export default function Matieres() {
               <thead>
                 <tr>
                   <th>Nom</th>
+                  <th>Filières</th>
                   <th>Coefficient</th>
                   <th>Volume horaire</th>
                   <th>Actions</th>
                 </tr>
               </thead>
-
               <tbody>
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={4}>
+                    <td colSpan={5}>
                       <div className="empty-state">
                         <p>Aucune matière trouvée</p>
                       </div>
@@ -134,30 +163,47 @@ export default function Matieres() {
                 ) : filtered.map(m => (
                   <tr key={m.id}>
                     <td style={{ fontWeight: 600 }}>{m.nom}</td>
+
+                    {/* FILIÈRES */}
+                    <td>
+                      {m.filieres && m.filieres.length > 0 ? (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                          {m.filieres.map((f, i) => (
+                            <span key={i} style={{
+                              display: 'inline-block',
+                              padding: '2px 10px',
+                              background: '#dbeafe',
+                              color: '#1d4ed8',
+                              borderRadius: 6,
+                              fontSize: 12,
+                              fontWeight: 600
+                            }}>
+                              {getFiliereName(f)}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span style={{ color: '#94a3b8', fontSize: 13 }}>—</span>
+                      )}
+                    </td>
+
                     <td>{m.coefficient}</td>
                     <td>{m.volumeHoraire}h</td>
-
                     <td>
                       <div style={{ display: 'flex', gap: 6 }}>
-                        <button className="btn-icon" onClick={() => openEdit(m)}>
-                          ✏️
-                        </button>
-
-                        <button className="btn-icon danger" onClick={() => setConfirm(m)}>
-                          🗑️
-                        </button>
+                        <button className="btn-icon" onClick={() => openEdit(m)}>✏️</button>
+                        <button className="btn-icon danger" onClick={() => setConfirm(m)}>🗑️</button>
                       </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
-
             </table>
           </div>
         )}
       </div>
 
-      {/* MODAL (SAME STYLE AS OTHERS) */}
+      {/* MODAL */}
       {modal && (
         <div className="modal-overlay" onClick={() => setModal(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
@@ -166,14 +212,12 @@ export default function Matieres() {
               <span className="modal-title">
                 {editing ? 'Modifier la matière' : 'Nouvelle matière'}
               </span>
-
-              <button className="btn-icon" onClick={() => setModal(false)}>
-                ✖
-              </button>
+              <button className="btn-icon" onClick={() => setModal(false)}>✖</button>
             </div>
 
             <div className="form-grid">
 
+              {/* NOM */}
               <div className="form-group">
                 <label className="form-label">Nom de la matière *</label>
                 <input
@@ -184,8 +228,55 @@ export default function Matieres() {
                 />
               </div>
 
-              <div className="form-grid form-grid-2">
+              {/* FILIÈRES (multi-select checkboxes) */}
+              <div className="form-group">
+                <label className="form-label">Filières associées</label>
+                <div style={{
+                  border: '1.5px solid #bfdbfe',
+                  borderRadius: 8,
+                  padding: '10px 12px',
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 10,
+                  background: '#f8faff',
+                  maxHeight: 130,
+                  overflowY: 'auto'
+                }}>
+                  {filieres.length === 0 ? (
+                    <span style={{ fontSize: 13, color: '#94a3b8' }}>Aucune filière disponible</span>
+                  ) : filieres.map(f => {
+                    const iri = f['@id'] || `/api/filieres/${f.id}`
+                    const checked = form.filieres.includes(iri)
+                    return (
+                      <label key={f.id} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        fontSize: 13,
+                        cursor: 'pointer',
+                        padding: '4px 10px',
+                        borderRadius: 6,
+                        background: checked ? '#dbeafe' : 'white',
+                        border: `1.5px solid ${checked ? '#1d4ed8' : '#e2e8f0'}`,
+                        color: checked ? '#1d4ed8' : '#334155',
+                        fontWeight: checked ? 600 : 400,
+                        transition: 'all 0.15s'
+                      }}>
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleFiliere(iri)}
+                          style={{ display: 'none' }}
+                        />
+                        {f.nom || f.libelle}
+                      </label>
+                    )
+                  })}
+                </div>
+              </div>
 
+              {/* COEFFICIENT + VOLUME */}
+              <div className="form-grid form-grid-2">
                 <div className="form-group">
                   <label className="form-label">Coefficient</label>
                   <input
@@ -195,7 +286,6 @@ export default function Matieres() {
                     onChange={e => setForm({ ...form, coefficient: e.target.value })}
                   />
                 </div>
-
                 <div className="form-group">
                   <label className="form-label">Volume horaire</label>
                   <input
@@ -205,7 +295,6 @@ export default function Matieres() {
                     onChange={e => setForm({ ...form, volumeHoraire: e.target.value })}
                   />
                 </div>
-
               </div>
 
             </div>
@@ -214,7 +303,6 @@ export default function Matieres() {
               <button className="btn btn-secondary" onClick={() => setModal(false)}>
                 Annuler
               </button>
-
               <button
                 className="btn btn-primary"
                 onClick={handleSubmit}

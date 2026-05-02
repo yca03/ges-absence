@@ -1,0 +1,153 @@
+import { useState } from 'react'
+import { userService } from '../services/api'
+import './Login.css'
+
+export default function Login({ onLogin }) {
+  const [form, setForm] = useState({ email: '', password: '' })
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError('')
+
+    if (!form.email || !form.password) {
+      setError('Veuillez remplir tous les champs.')
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const res = await userService.getAll()
+      const users = res.data?.member || []
+
+      const found = users.find(
+        u => u.email === form.email && u.password === form.password
+      )
+
+      if (found) {
+        localStorage.setItem('user', JSON.stringify(found))
+        onLogin(found)
+      } else {
+        setError('Email ou mot de passe incorrect.')
+      }
+    } catch (err) {
+      setError('Erreur de connexion au serveur.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="login-page">
+      <div className="login-left">
+        <div className="login-left-content">
+          <div className="brand-logo">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+              <rect width="40" height="40" rx="12" fill="#1d4ed8"/>
+              <path d="M12 30L20 12L28 30" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M15 24H25" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+            </svg>
+            <span className="brand-name">GestionApp</span>
+          </div>
+          <div className="brand-tagline">
+            <h2>Gérez votre établissement<br />en toute simplicité.</h2>
+            <p>Présences, enseignants, étudiants, filières — tout en un seul endroit.</p>
+          </div>
+          <div className="brand-dots">
+            <span /><span /><span />
+          </div>
+        </div>
+      </div>
+
+      <div className="login-right">
+        <div className="login-card">
+          <h1 className="login-title">Connexion</h1>
+          <p className="login-subtitle">Entrez vos identifiants pour continuer</p>
+
+          <form onSubmit={handleSubmit} className="login-form">
+            <div className="field-group">
+              <label htmlFor="email">Adresse email</label>
+              <div className="input-wrapper">
+                <span className="input-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                  </svg>
+                </span>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="exemple@email.com"
+                  value={form.email}
+                  onChange={e => setForm({ ...form, email: e.target.value })}
+                  autoComplete="email"
+                />
+              </div>
+            </div>
+
+            <div className="field-group">
+              <label htmlFor="password">Mot de passe</label>
+              <div className="input-wrapper">
+                <span className="input-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                </span>
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={form.password}
+                  onChange={e => setForm({ ...form, password: e.target.value })}
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  className="toggle-password"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                      <line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {error && (
+              <div className="login-error">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                {error}
+              </div>
+            )}
+
+            <button type="submit" className="login-btn" disabled={loading}>
+              {loading ? <span className="spinner" /> : 'Se connecter'}
+            </button>
+          </form>
+
+          <p className="login-hint">
+            Compte test : <strong>yaochris620@gmail.com</strong> / <strong>password</strong>
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}

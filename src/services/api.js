@@ -118,4 +118,13 @@ export const enseignementCreateService = {
   delete: (id) => api.delete(`/enseignements/${id}`)
 }
 
+/* USER  */
+export const userService = {
+  getAll: () => api.get('/users/all'),
+  getOne: (id) => api.get(`/users/${id}`),
+  create: (data) => api.post('/users', data),
+  update: (id, data) => api.patch(`/users/${id}`, data, patchConfig), 
+  delete: (id) => api.delete(`/users/${id}`)                         
+}
+
 export default api

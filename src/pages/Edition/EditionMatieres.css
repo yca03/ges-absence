@@ -1,0 +1,131 @@
+.edition-page {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.edition-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.edition-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1d4ed8;
+  margin-bottom: 4px;
+}
+
+.edition-subtitle {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.edition-filters {
+  display: flex;
+  gap: 12px;
+}
+
+.edition-select {
+  padding: 9px 14px;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1e40af;
+  background: #eff6ff;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.edition-select:focus {
+  border-color: #1d4ed8;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(29,78,216,0.1);
+}
+
+.mat-table-wrapper {
+  background: white;
+  border-radius: 14px;
+  border: 1.5px solid #dbeafe;
+  overflow: hidden;
+  box-shadow: 0 2px 16px rgba(29,78,216,0.06);
+}
+
+.mat-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.mat-table thead tr {
+  background: #eff6ff;
+}
+
+.mat-table th {
+  padding: 13px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1d4ed8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1.5px solid #dbeafe;
+}
+
+.mat-table td {
+  padding: 12px 16px;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.mat-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.mat-table tbody tr:hover {
+  background: #f8faff;
+}
+
+.mat-num {
+  color: #94a3b8;
+  font-size: 13px;
+  width: 40px;
+}
+
+.mat-name {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.mat-center {
+  text-align: center;
+}
+
+.mat-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.mat-empty {
+  text-align: center;
+  color: #94a3b8;
+  padding: 40px;
+  font-size: 14px;
+}
+
+.mat-loading {
+  text-align: center;
+  color: #1d4ed8;
+  padding: 40px;
+  font-size: 14px;
+}
